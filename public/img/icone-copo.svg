@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="titulo descricao">
+  <title id="titulo">Copo de água</title>
+  <desc id="descricao">Copo minimalista vazado com uma onda representando água.</desc>
+  <rect width="512" height="512" rx="112" fill="#0a0f12"/>
+  <g fill="none" stroke="#83ded0" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M154 133h204l-22 248c-2 22-20 39-42 39h-76c-22 0-40-17-42-39z"/>
+    <path d="M174 267c27-18 54-18 81 0s54 18 82 0"/>
+  </g>
+</svg>

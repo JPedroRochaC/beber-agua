@@ -1,0 +1,16 @@
+{
+  "name": "beber-agua",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lembrete pessoal de hidratação com acompanhamento diário.",
+  "main": "server.js",
+  "scripts": {
+    "iniciar": "node server.js",
+    "dev": "node --watch server.js",
+    "validar": "node scripts/validar-pwa.js",
+    "testar": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

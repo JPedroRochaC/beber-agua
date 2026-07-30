@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0f12" />
+    <meta name="application-name" content="Beba água" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Beba água" />
+    <title>Meu lembrete de água</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="img/icone-copo.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/icone-180.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="aura aura--superior"></div>
+    <div class="aura aura--inferior"></div>
+
+    <main class="aplicativo">
+      <header class="cabecalho">
+        <a class="marca" href="#" aria-label="Início">
+          <span class="marca__beba">●</span>
+          <span>beba água</span>
+        </a>
+        <div class="acoes-cabecalho">
+          <button
+            class="botao-icone oculto"
+            id="botao-instalar"
+            type="button"
+            aria-label="Instalar aplicativo"
+            title="Instalar aplicativo"
+          >
+            <i data-lucide="download" aria-hidden="true"></i>
+          </button>
+          <button
+            class="botao-icone oculto"
+            id="botao-configuracoes"
+            type="button"
+            aria-label="Abrir configurações"
+          >
+            ⚙
+          </button>
+        </div>
+      </header>
+
+      <section class="tela-inicial" id="tela-inicial">
+        <div class="introducao">
+          <p class="rotulo">SEU RITMO, SUA META</p>
+          <h1>Água na medida.<br /><span>Sem esquecer.</span></h1>
+          <p>
+            Configure seus dados uma vez. Eu distribuo sua meta pelo dia e
+            lembro você no momento certo.
+          </p>
+        </div>
+
+        <form class="cartao formulario" id="formulario-perfil">
+          <div class="formulario__cabecalho">
+            <div>
+              <p class="rotulo">CONFIGURAÇÃO INICIAL</p>
+              <h2>Vamos calcular sua meta</h2>
+            </div>
+            <span class="etapa">01</span>
+          </div>
+
+          <div class="grade-campos">
+            <label class="campo campo--inteiro">
+              <span>Como quer ser chamado?</span>
+              <input
+                id="nome"
+                name="nome"
+                type="text"
+                maxlength="30"
+                placeholder="Seu nome"
+                autocomplete="name"
+                required
+              />
+            </label>
+            <label class="campo">
+              <span>Peso</span>
+              <div class="entrada-com-unidade">
+                <input
+                  id="peso"
+                  name="peso"
+                  type="number"
+                  min="30"
+                  max="250"
+                  step="0.1"
+                  placeholder="70"
+                  required
+                /><span>kg</span>
+              </div>
+            </label>
+            <label class="campo">
+              <span>Altura</span>
+              <div class="entrada-com-unidade">
+                <input
+                  id="altura"
+                  name="altura"
+                  type="number"
+                  min="120"
+                  max="230"
+                  step="1"
+                  placeholder="175"
+                  required
+                /><span>cm</span>
+              </div>
+            </label>
+            <label class="campo">
+              <span>Acordo às</span>
+              <input
+                id="hora-acordar"
+                name="horaAcordar"
+                type="time"
+                value="07:00"
+                required
+              />
+            </label>
+            <label class="campo">
+              <span>Durmo às</span>
+              <input
+                id="hora-dormir"
+                name="horaDormir"
+                type="time"
+                value="23:00"
+                required
+              />
+            </label>
+            <label class="campo campo--inteiro">
+              <span>Meu copo ou garrafa</span>
+              <div class="entrada-com-unidade">
+                <input
+                  id="volume-padrao"
+                  name="volumePadrao"
+                  type="number"
+                  min="50"
+                  max="1500"
+                  step="50"
+                  value="250"
+                  required
+                /><span>ml</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="previsao" id="previsao-meta" aria-live="polite">
+            <span>Meta estimada</span>
+            <strong>Preencha peso e altura</strong>
+          </div>
+
+          <button class="botao-principal" type="submit">
+            Criar meu plano <span>→</span>
+          </button>
+          <p class="aviso-saude">
+            Estimativa geral para um adulto saudável. Necessidades individuais
+            podem variar.
+          </p>
+        </form>
+      </section>
+
+      <section class="painel oculto" id="painel">
+        <div class="saudacao">
+          <div>
+            <p class="rotulo" id="data-atual"></p>
+            <h1 id="titulo-saudacao"></h1>
+          </div>
+          <button
+            class="botao-secundario botao-notificacoes"
+            id="botao-notificacoes"
+            type="button"
+            aria-pressed="false"
+          >
+            <i data-lucide="bell" aria-hidden="true"></i>
+            <span id="texto-botao-notificacoes">Ativar lembretes</span>
+          </button>
+        </div>
+
+        <div class="grade-painel">
+          <article class="cartao cartao-progresso">
+            <div class="cartao__topo">
+              <div>
+                <p class="rotulo">PROGRESSO DE HOJE</p>
+                <h2>Continue no seu ritmo</h2>
+              </div>
+              <span class="estado" id="estado-meta">Em andamento</span>
+            </div>
+            <div class="progresso">
+              <div class="progresso__anel" id="anel-progresso">
+                <div>
+                  <strong id="porcentagem">0%</strong><span>da meta</span>
+                </div>
+              </div>
+              <div class="progresso__dados">
+                <p>
+                  <strong id="total-consumido">0 ml</strong
+                  ><span>consumidos</span>
+                </p>
+                <p>
+                  <strong id="meta-diaria">0 ml</strong><span>meta diária</span>
+                </p>
+                <p>
+                  <strong id="quantidade-restante">0 ml</strong
+                  ><span>restantes</span>
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article class="cartao cartao-lembrete">
+            <p class="rotulo">PRÓXIMO LEMBRETE</p>
+            <strong class="horario" id="proximo-lembrete">--:--</strong>
+            <p id="texto-lembrete">
+              Ative os lembretes para receber avisos ao longo do dia.
+            </p>
+            <button class="botao-texto" id="botao-pausar" type="button">
+              Pausar lembretes
+            </button>
+          </article>
+        </div>
+
+        <article class="cartao registro">
+          <div>
+            <p class="rotulo">REGISTRO RÁPIDO</p>
+            <h2>Quanto você bebeu?</h2>
+          </div>
+          <div class="opcoes-volume" id="opcoes-volume"></div>
+          <form class="registro-personalizado" id="formulario-registro">
+            <label class="campo"
+              ><span>Outro volume</span>
+              <div class="entrada-com-unidade">
+                <input
+                  id="quantidade-personalizada"
+                  type="number"
+                  min="1"
+                  max="2000"
+                  placeholder="300"
+                /><span>ml</span>
+              </div></label
+            >
+            <button class="botao-principal" type="submit">Registrar</button>
+          </form>
+        </article>
+
+        <article class="cartao historico">
+          <div class="cartao__topo">
+            <div>
+              <p class="rotulo">HISTÓRICO</p>
+              <h2>Consumo de hoje</h2>
+            </div>
+            <span class="contador" id="contador-registros">0 registros</span>
+          </div>
+          <ul id="lista-historico" class="lista-historico"></ul>
+          <p id="historico-vazio" class="estado-vazio">
+            Seu primeiro copo do dia aparecerá aqui.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <div class="sobreposicao oculto" id="sobreposicao" aria-hidden="true"></div>
+    <aside
+      class="modal oculto"
+      id="modal-configuracoes"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-configuracoes"
+    >
+      <div class="modal__topo">
+        <div>
+          <p class="rotulo">PREFERÊNCIAS</p>
+          <h2 id="titulo-configuracoes">Configurações</h2>
+        </div>
+        <button
+          class="botao-icone"
+          id="fechar-configuracoes"
+          type="button"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+      </div>
+      <form id="formulario-configuracoes" class="grade-campos"></form>
+    </aside>
+
+    <div
+      class="lembrete-pendente oculto"
+      id="lembrete-pendente"
+      role="alertdialog"
+      aria-live="assertive"
+    >
+      <div>
+        <p class="rotulo">HORA DA ÁGUA</p>
+        <strong>Seu copo está esperando.</strong>
+      </div>
+      <div class="lembrete-pendente__acoes">
+        <button class="botao-principal" id="confirmar-lembrete" type="button">
+          Bebi água</button
+        ><button class="botao-secundario" id="adiar-lembrete" type="button">
+          Lembrar em 10 min
+        </button>
+      </div>
+    </div>
+
+    <div class="rodape">
+  <footer>
+    <p class="rodape-texto">Desenvolvido por</p>
+
+    <a
+      class="rodape-logo"
+      href="https://www.instagram.com/pedrocha.dev/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Instagram pedrocha.dev"
+    >
+      @ped<span>rocha</span>.dev
+    </a>
+  </footer>
+</div>
+
+    <div class="mensagem" id="mensagem" role="status" aria-live="polite"></div>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

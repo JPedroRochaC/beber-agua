@@ -1,0 +1,826 @@
+:root {
+  --fundo: #0a0f12;
+  --cartao: #10181c;
+  --campo: #0c1316;
+  --destaque: #39b7a4;
+  --destaque-claro: #83ded0;
+  --quente: #d6a66f;
+  --texto: #edf5f3;
+  --suave: #899997;
+  --borda: rgba(131, 222, 208, 0.14);
+  --fonte-titulo: "Bricolage Grotesque", sans-serif;
+  --fonte-corpo: "Manrope", sans-serif;
+  --fonte-mono: "IBM Plex Mono", monospace;
+  --recuo-cartao: clamp(22px, 3vw, 34px);
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: var(--fonte-corpo);
+  overflow-x: hidden;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+.oculto {
+  display: none !important;
+}
+.aura {
+  position: fixed;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+  pointer-events: none;
+}
+.aura--superior {
+  top: -15rem;
+  right: -8rem;
+  background: var(--destaque);
+}
+.aura--inferior {
+  bottom: -18rem;
+  left: -10rem;
+  background: var(--quente);
+}
+.aplicativo {
+  width: min(1120px, calc(100% - 40px));
+  margin: auto;
+  padding-bottom: 64px;
+}
+.cabecalho {
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.acoes-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.marca {
+  color: var(--texto);
+  text-decoration: none;
+  font: 700 1.05rem var(--fonte-titulo);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.marca__beba {
+  display: inline-block;
+  color: var(--destaque);
+  text-shadow: 0 0 18px var(--destaque);
+  animation: pulsar-ponto 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes pulsar-ponto {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(0.82);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+.tela-inicial {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  align-items: center;
+  gap: clamp(36px, 7vw, 100px);
+  min-height: calc(100vh - 120px);
+  padding: 30px 0 70px;
+}
+.introducao h1,
+.saudacao h1 {
+  font: 700 clamp(3rem, 6vw, 5.5rem)/0.95 var(--fonte-titulo);
+  letter-spacing: -0.055em;
+  margin: 18px 0 26px;
+}
+.introducao h1 span {
+  color: var(--destaque);
+}
+.introducao > p:last-child {
+  color: var(--suave);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 470px;
+}
+.rotulo {
+  display: block;
+  color: #9da9aa;
+  font: 500 0.7rem/1.4 var(--fonte-mono);
+  letter-spacing: 0.15em;
+  margin: 0 0 8px;
+}
+.cartao {
+  background: linear-gradient(
+    145deg,
+    rgba(18, 28, 32, 0.96),
+    rgba(13, 20, 23, 0.98)
+  );
+  border: 1px solid var(--borda);
+  border-radius: 24px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+.formulario {
+  padding: clamp(24px, 4vw, 42px);
+}
+.formulario__cabecalho,
+.cartao__topo,
+.modal__topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+h2 {
+  font: 600 clamp(1.35rem, 2vw, 1.8rem) var(--fonte-titulo);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+.etapa {
+  color: var(--destaque);
+  font: 500 1.35rem var(--fonte-mono);
+}
+.grade-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 30px 0 22px;
+}
+.campo {
+  display: grid;
+  gap: 8px;
+}
+.campo--inteiro {
+  grid-column: 1/-1;
+}
+.campo > span {
+  display: block;
+  color: var(--suave);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+input {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--campo);
+  color: var(--texto);
+  outline: none;
+  padding: 0 14px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+input:focus {
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 3px rgba(57, 183, 164, 0.12);
+}
+.entrada-com-unidade {
+  position: relative;
+}
+.entrada-com-unidade input {
+  padding-right: 52px;
+}
+.entrada-com-unidade > span {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--suave);
+  font: 0.78rem var(--fonte-mono);
+}
+.previsao {
+  margin: 8px 0 20px;
+  padding: 15px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px dashed rgba(57, 183, 164, 0.32);
+  border-radius: 12px;
+  color: var(--suave);
+  font-size: 0.8rem;
+}
+.previsao strong {
+  color: var(--destaque-claro);
+  font-family: var(--fonte-mono);
+  font-weight: 500;
+}
+.botao-principal,
+.botao-secundario,
+.botao-texto,
+.botao-icone {
+  border: 0;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+.botao-principal {
+  min-height: 52px;
+  border-radius: 12px;
+  padding: 0 20px;
+  background: var(--destaque);
+  color: #07110f;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+.formulario > .botao-principal {
+  width: 100%;
+}
+.botao-secundario {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  color: var(--texto);
+  background: rgba(255, 255, 255, 0.025);
+}
+.botao-notificacoes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+.botao-notificacoes svg {
+  width: 17px;
+  height: 17px;
+  color: var(--destaque-claro);
+}
+
+@keyframes confirmar-notificacao {
+  0% {
+    border-color: var(--borda);
+    box-shadow: 0 0 0 0 rgba(57, 183, 164, 0);
+    transform: scale(1);
+  }
+  45% {
+    border-color: var(--destaque);
+    box-shadow: 0 0 0 8px rgba(57, 183, 164, 0.13);
+    transform: scale(1.06);
+  }
+  100% {
+    border-color: rgba(57, 183, 164, 0.45);
+    box-shadow: 0 0 0 0 rgba(57, 183, 164, 0);
+    transform: scale(1);
+  }
+}
+
+@keyframes tocar-sino {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(16deg); }
+  50% { transform: rotate(-14deg); }
+  75% { transform: rotate(8deg); }
+}
+
+.botao-notificacoes.notificacao-confirmada {
+  border-color: rgba(57, 183, 164, 0.45);
+  background: rgba(57, 183, 164, 0.1);
+  animation: confirmar-notificacao 820ms ease-out;
+}
+
+.botao-notificacoes.notificacao-confirmada svg {
+  animation: tocar-sino 620ms ease-in-out;
+  transform-origin: 50% 10%;
+}
+
+.botao-notificacoes.notificacoes-ativas {
+  border-color: rgba(57, 183, 164, 0.45);
+  background: rgba(57, 183, 164, 0.1);
+  color: var(--destaque-claro);
+}
+
+.botao-notificacoes.notificacoes-ativas svg {
+  color: var(--destaque-claro);
+  filter: drop-shadow(0 0 6px rgba(57, 183, 164, 0.55));
+}
+
+.botao-notificacoes.notificacoes-desativadas {
+  border-color: rgba(137, 153, 151, 0.22);
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--suave);
+}
+
+.botao-notificacoes.notificacoes-desativadas svg {
+  color: var(--suave);
+  opacity: 0.55;
+  filter: none;
+}
+.botao-texto {
+  padding: 0;
+  background: none;
+  color: var(--destaque-claro);
+  font-size: 0.8rem;
+}
+.botao-icone {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  background: var(--cartao);
+  color: var(--texto);
+  font-size: 1.1rem;
+}
+
+.botao-icone svg {
+  width: 18px;
+  height: 18px;
+}
+.aviso-saude {
+  color: var(--suave);
+  text-align: center;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  margin: 14px 0 0;
+}
+.painel {
+  padding-top: 30px;
+}
+
+/* FIX alinhamento: era "flex-end" + gambiarra de margin-bottom no botão de
+   notificações pra compensar o h1 com clamp(). Com "center" o botão fica
+   sempre alinhado ao meio do texto, em qualquer largura de tela. */
+.saudacao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 22px 0 38px;
+}
+
+.saudacao > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.saudacao .rotulo,
+.saudacao h1 {
+  width: 100%;
+  padding-inline: 0;
+  text-align: left;
+}
+
+.saudacao h1 {
+  font-size: clamp(2.3rem, 5vw, 4.2rem);
+  margin: 8px 0 0;
+}
+
+.grade-painel {
+  display: grid;
+  grid-template-columns: 1.6fr 0.8fr;
+  gap: 20px;
+}
+.cartao-progresso,
+.cartao-lembrete,
+.registro,
+.historico {
+  padding: var(--recuo-cartao);
+}
+.estado,
+.contador {
+  color: var(--destaque-claro);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font: 0.68rem var(--fonte-mono);
+}
+.progresso {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  align-items: center;
+  gap: 38px;
+  margin-top: 34px;
+}
+.progresso__anel {
+  --progresso: 0deg;
+  width: 180px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(
+    var(--destaque) var(--progresso),
+    rgba(255, 255, 255, 0.055) 0
+  );
+  position: relative;
+}
+.progresso__anel:before {
+  content: "";
+  width: 143px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--cartao);
+  position: absolute;
+}
+.progresso__anel > div {
+  position: relative;
+  display: grid;
+  text-align: center;
+}
+.progresso__anel strong {
+  font: 500 2rem var(--fonte-mono);
+}
+.progresso__anel span,
+.progresso__dados span {
+  color: var(--suave);
+  font-size: 0.72rem;
+}
+.progresso__dados {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.progresso__dados p {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.progresso__dados strong {
+  font: 500 clamp(1rem, 2vw, 1.3rem) var(--fonte-mono);
+}
+.cartao-lembrete {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+.cartao-lembrete .horario {
+  color: var(--quente);
+  font: 500 clamp(3rem, 6vw, 5.3rem)/1 var(--fonte-mono);
+  letter-spacing: -0.08em;
+  margin: 54px 0 24px;
+}
+.cartao-lembrete > p:not(.rotulo) {
+  color: var(--suave);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 28rem;
+}
+.cartao-lembrete .botao-texto {
+  margin-top: 30px;
+}
+.registro,
+.historico {
+  margin-top: 20px;
+}
+.registro {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 22px;
+  align-items: center;
+}
+.opcoes-volume {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.opcao-volume {
+  min-height: 44px;
+  padding: 0 15px;
+  background: var(--campo);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  color: var(--texto);
+  font: 0.78rem var(--fonte-mono);
+}
+.registro-personalizado {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: flex-end;
+  border-top: 1px solid var(--borda);
+  padding-top: 20px;
+}
+.registro-personalizado .botao-principal {
+  min-width: 150px;
+}
+.lista-historico {
+  list-style: none;
+  padding: 0;
+  margin: 22px 0 0;
+  display: grid;
+}
+.item-historico {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 15px 2px;
+  border-top: 1px solid var(--borda);
+}
+.item-historico__icone {
+  color: var(--destaque);
+}
+.item-historico strong,
+.item-historico time {
+  font-family: var(--fonte-mono);
+  font-weight: 500;
+}
+.item-historico time {
+  color: var(--suave);
+  font-size: 0.75rem;
+}
+.item-historico button {
+  border: 0;
+  background: none;
+  color: var(--suave);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+}
+.estado-vazio {
+  color: var(--suave);
+  text-align: center;
+  padding: 30px 0 8px;
+  font-size: 0.85rem;
+}
+.sobreposicao {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+}
+.modal {
+  position: fixed;
+  z-index: 21;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  width: min(550px, calc(100% - 32px));
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid var(--borda);
+  border-radius: 22px;
+  background: var(--cartao);
+}
+.modal .botao-principal {
+  grid-column: 1/-1;
+}
+
+/* FIX pulsar: não existia nenhum @keyframes no arquivo. O toast de
+   "hora da água" agora pulsa suavemente pra chamar atenção, respeitando
+   prefers-reduced-motion (já tratado lá embaixo). */
+@keyframes pulsar {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+.lembrete-pendente {
+  position: fixed;
+  z-index: 30;
+  right: 22px;
+  bottom: 22px;
+  width: min(460px, calc(100% - 44px));
+  padding: 22px;
+  border: 1px solid rgba(214, 166, 111, 0.35);
+  border-radius: 18px;
+  background: #172024;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.5);
+  animation: pulsar 2.2s ease-in-out infinite;
+}
+/* classe utilitária opcional: aplique no sino (#botao-notificacoes) via JS
+   quando houver lembrete pendente, pra reforçar o aviso lá no cabeçalho */
+.pulsando {
+  animation: pulsar 1.6s ease-in-out infinite;
+}
+
+.lembrete-pendente strong {
+  font: 600 1.35rem var(--fonte-titulo);
+}
+.lembrete-pendente__acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.mensagem {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: 24px;
+  translate: -50% 140%;
+  opacity: 0;
+  padding: 12px 18px;
+  background: var(--texto);
+  color: var(--fundo);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  transition:
+    translate 260ms ease,
+    opacity 260ms ease;
+}
+.mensagem.visivel {
+  translate: -50% 0;
+  opacity: 1;
+}
+
+.rodape {
+  padding: 40px 20px;
+  border-top: 1px solid rgba(57, 183, 164, 0.3);
+  background: rgba(8, 15, 18, 0.65);
+  text-align: center;
+}
+
+.rodape footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.rodape-texto {
+  margin: 0;
+  color: var(--texto-suave, #a9b1b3);
+  font-size: 14px;
+}
+
+.rodape-logo {
+  display: inline-flex;
+  padding: 9px 15px;
+  border: 1px solid rgba(57, 183, 164, 0.3);
+  border-radius: 999px;
+  background: rgba(57, 183, 164, 0.07);
+  color: var(--texto, #fff);
+  font-family: var(--fonte-titulo);
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.rodape-logo span {
+  color: var(--destaque);
+}
+
+.botao-principal:hover {
+  background: var(--destaque-claro);
+  transform: translateY(-2px);
+}
+
+.botao-secundario:hover,
+.opcao-volume:hover,
+.botao-icone:hover {
+  border-color: var(--destaque);
+}
+
+.opcao-volume:hover,
+.botao-icone:hover,
+.item-historico button:hover {
+  color: var(--destaque-claro);
+}
+
+.item-historico button:hover {
+  background: rgba(57, 183, 164, 0.12);
+}
+
+.botao-texto:hover {
+  color: var(--destaque);
+}
+
+.cartao:hover {
+  border-color: rgba(131, 222, 208, 0.28);
+  box-shadow: 0 28px 86px rgba(0, 0, 0, 0.26);
+  transform: translateY(-2px);
+}
+
+.rodape-logo:hover {
+  border-color: var(--destaque);
+  background: rgba(57, 183, 164, 0.14);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 800px) {
+  .tela-inicial {
+    grid-template-columns: 1fr;
+    padding-top: 15px;
+  }
+  .introducao h1 {
+    font-size: clamp(3rem, 15vw, 5rem);
+  }
+  .grade-painel {
+    grid-template-columns: 1fr;
+  }
+  .cartao-lembrete .horario {
+    margin-top: 38px;
+  }
+  .registro {
+    grid-template-columns: 1fr;
+  }
+  .opcoes-volume {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 560px) {
+  .aplicativo {
+    width: min(100% - 40px, 1120px);
+  }
+  .cabecalho {
+    min-height: 72px;
+  }
+  .grade-campos {
+    grid-template-columns: 1fr;
+  }
+  .campo--inteiro {
+    grid-column: auto;
+  }
+  .previsao {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* FIX alinhamento mobile: "align-items: flex-start" desalinhava o botão
+     (que fica pequeno, só ícone) em relação ao h1 grande. Agora herda o
+     "center" do .saudacao base, então fica sempre no meio do bloco de texto. */
+  .saudacao {
+    gap: 32px;
+  }
+  .saudacao .botao-notificacoes {
+    flex: 0 0 44px;
+    width: 44px;
+    padding: 0;
+    margin-bottom: 0;
+  }
+  .saudacao .botao-notificacoes span {
+    display: none;
+  }
+  .saudacao .botao-notificacoes svg {
+    width: 19px;
+    height: 19px;
+  }
+  .progresso {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .progresso__dados {
+    width: 100%;
+  }
+  .progresso__dados strong {
+    font-size: 0.9rem;
+  }
+  .registro-personalizado {
+    grid-template-columns: 1fr;
+  }
+  .item-historico {
+    grid-template-columns: auto 1fr auto;
+  }
+  .item-historico time {
+    grid-column: 2;
+  }
+  .lembrete-pendente__acoes {
+    flex-direction: column;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *:before,
+  *:after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
