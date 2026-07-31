@@ -1,4 +1,4 @@
-const nomeCache = "beba-agua-v10";
+const nomeCache = "beba-agua-v13";
 const arquivosEssenciais = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const arquivosEssenciais = [
   "./js/app.js",
   "./manifest.webmanifest",
   "./img/icone-copo.svg",
+  "./img/icone-maskable.svg",
   "./img/icone-192.png",
   "./img/icone-512.png",
   "./img/icone-180.png"
@@ -72,14 +73,17 @@ self.addEventListener("message", (evento) => {
 
 self.addEventListener("notificationclick", (evento) => {
   evento.notification.close();
-  const endereco = evento.notification.data?.endereco || self.registration.scope;
+  const enderecoBase = evento.notification.data?.endereco || self.registration.scope;
+  const endereco = new URL(enderecoBase);
+  if (evento.action) endereco.searchParams.set("acao", evento.action);
   evento.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((janelas) => {
       const janelaAberta = janelas.find((janela) => "focus" in janela);
       if (janelaAberta) {
-        return janelaAberta.navigate(endereco).then(() => janelaAberta.focus());
+        if (evento.action) janelaAberta.postMessage({ acao: evento.action });
+        return janelaAberta.focus();
       }
-      return self.clients.openWindow(endereco);
+      return self.clients.openWindow(endereco.href);
     })
   );
 });

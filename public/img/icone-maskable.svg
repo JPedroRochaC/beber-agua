@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="titulo descricao">
+  <title id="titulo">Beba Água</title>
+  <desc id="descricao">Ícone adaptável com copo e água.</desc>
+  <rect width="512" height="512" fill="#0a0f12"/>
+  <circle cx="256" cy="256" r="176" fill="#102529"/>
+  <g fill="none" stroke="#83ded0" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M174 146h164l-18 208c-2 20-18 35-38 35h-52c-20 0-36-15-38-35z"/>
+    <path d="M191 264c22-15 44-15 66 0s44 15 66 0"/>
+  </g>
+</svg>

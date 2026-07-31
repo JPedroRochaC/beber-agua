@@ -91,7 +91,8 @@ button {
 }
 
 @keyframes pulsar-ponto {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     transform: scale(0.82);
   }
@@ -297,10 +298,19 @@ input:focus {
 }
 
 @keyframes tocar-sino {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(16deg); }
-  50% { transform: rotate(-14deg); }
-  75% { transform: rotate(8deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(16deg);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
 }
 
 .botao-notificacoes.notificacao-confirmada {

@@ -173,6 +173,30 @@ function registrarConsumo(quantidade) {
   mostrarMensagem(`${formatarVolume(quantidade)} registrados. Boa!`);
 }
 
+function adiarLembrete(minutos = dados.configuracoes.adiamento) {
+  elementos["lembrete-pendente"].classList.add("oculto");
+  definirPulsoSino(false);
+  dados.proximoLembrete = criarProximoLembrete(minutos).toISOString();
+  salvarDados();
+  atualizarProximoLembrete();
+  mostrarMensagem(`Lembrete adiado por ${minutos} minutos.`);
+}
+
+function executarAcaoNotificacao(acao) {
+  if (!dados.perfil) return;
+  if (acao === "beber-200") registrarConsumo(200);
+  if (acao === "adiar-10") adiarLembrete(10);
+}
+
+function processarAcaoPendenteNaUrl() {
+  const endereco = new URL(window.location.href);
+  const acao = endereco.searchParams.get("acao");
+  if (!acao) return;
+  endereco.searchParams.delete("acao");
+  window.history.replaceState({}, "", endereco);
+  executarAcaoNotificacao(acao);
+}
+
 function excluirRegistro(identificador) {
   dados.registros[obterDataLocal()] = obterRegistrosHoje().filter(
     (registro) => registro.id !== identificador,
@@ -364,19 +388,24 @@ function verificarLembrete() {
     Notification.permission === "granted"
   ) {
     const opcoesNotificacao = {
-      body: `Hora de beber ${formatarVolume(calcularQuantidadePorLembrete())}. Volte ao aplicativo para confirmar.`,
+      body: `${dados.perfil.nome}, faltam ${formatarVolume(obterResumo().restante)} para sua meta de hoje.`,
       tag: "lembrete-agua",
       renotify: true,
       icon: new URL("img/icone-192.png", document.baseURI).href,
-      badge: new URL("img/icone-192.png", document.baseURI).href,
       data: { endereco: new URL(".", document.baseURI).href },
+      actions: [
+        { action: "beber-200", title: "Já bebi 200 ml" },
+        { action: "adiar-10", title: "Adiar 10 min" },
+      ],
+      requireInteraction: true,
+      timestamp: Date.now(),
     };
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((registro) =>
-        registro.showNotification("Hora de beber água", opcoesNotificacao),
+        registro.showNotification("Hora de beber água 💧", opcoesNotificacao),
       );
     } else {
-      const aviso = new Notification("Hora de beber água", opcoesNotificacao);
+      const aviso = new Notification("Hora de beber água 💧", opcoesNotificacao);
       aviso.onclick = () => window.focus();
     }
   }
@@ -418,7 +447,9 @@ async function ativarNotificacoes() {
   salvarDados();
   atualizarEstadoNotificacoes();
   atualizarProximoLembrete();
-  if (permissao === "granted") animarNotificacaoAtivada();
+  if (permissao === "granted") {
+    animarNotificacaoAtivada();
+  }
   mostrarMensagem(
     permissao === "granted"
       ? "Lembretes ativados."
@@ -513,16 +544,7 @@ elementos["confirmar-lembrete"].addEventListener("click", () =>
   registrarConsumo(calcularQuantidadePorLembrete()),
 );
 elementos["adiar-lembrete"].addEventListener("click", () => {
-  elementos["lembrete-pendente"].classList.add("oculto");
-  definirPulsoSino(false);
-  dados.proximoLembrete = criarProximoLembrete(
-    dados.configuracoes.adiamento,
-  ).toISOString();
-  salvarDados();
-  atualizarProximoLembrete();
-  mostrarMensagem(
-    `Lembrete adiado por ${dados.configuracoes.adiamento} minutos.`,
-  );
+  adiarLembrete();
 });
 elementos["botao-configuracoes"].addEventListener("click", abrirConfiguracoes);
 elementos["fechar-configuracoes"].addEventListener(
@@ -536,7 +558,14 @@ elementos["formulario-configuracoes"].addEventListener(
 );
 
 exibirAplicativo();
+processarAcaoPendenteNaUrl();
 window.lucide?.createIcons({ attrs: { "stroke-width": 1.8 } });
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("message", (evento) => {
+    executarAcaoNotificacao(evento.data?.acao);
+  });
+}
 
 window.addEventListener("beforeinstallprompt", (evento) => {
   evento.preventDefault();
@@ -558,7 +587,9 @@ document.addEventListener("visibilitychange", () => {
     verificarLembrete();
   }
 });
-window.addEventListener("online", () => mostrarMensagem("Conexão restabelecida."));
+window.addEventListener("online", () =>
+  mostrarMensagem("Conexão restabelecida."),
+);
 window.addEventListener("offline", () =>
   mostrarMensagem("Você está offline. Seus dados continuam disponíveis."),
 );
@@ -571,7 +602,8 @@ if ("serviceWorker" in navigator) {
   });
   window.addEventListener("load", async () => {
     try {
-      const registro = await navigator.serviceWorker.register("service-worker.js");
+      const registro =
+        await navigator.serviceWorker.register("service-worker.js");
       await registro.update();
     } catch {
       mostrarMensagem("Não foi possível ativar o modo de aplicativo.");
