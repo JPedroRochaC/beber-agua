@@ -1,3 +1,7 @@
 node_modules/
 .env
 npm-debug.log*
+.push-config.json
+.app-data.json
+.push-config.json.tmp
+.app-data.json.tmp

@@ -27,7 +27,7 @@ A partir do peso informado, o aplicativo calcula uma meta diária estimada. O pa
 
 O usuário também pode definir seus horários, configurar o tamanho do copo ou da garrafa e ativar lembretes de hidratação.
 
-Os dados ficam armazenados no próprio navegador, sem necessidade de cadastro ou conexão com banco de dados.
+Não há cadastro ou conta. O servidor mantém um único perfil compartilhado e sincroniza automaticamente os dados entre os dispositivos que acessam a mesma instalação do aplicativo. O navegador conserva uma cópia local para funcionamento offline.
 
 ## Demonstração
 
@@ -58,7 +58,7 @@ Os dados ficam armazenados no próprio navegador, sem necessidade de cadastro ou
 - ✅ Cálculo e acompanhamento da meta
 - ✅ Registro e histórico diário
 - ✅ Configurações personalizadas
-- ✅ Lembretes enquanto o aplicativo está em execução
+- ✅ Web Push com o aplicativo fechado
 - ✅ Instalação como PWA
 - ✅ Funcionamento offline
 - ✅ Notificações locais com ações rápidas
@@ -77,11 +77,13 @@ Os dados ficam armazenados no próprio navegador, sem necessidade de cadastro ou
 
 - Node.js
 - Express
+- web-push
 
 ### Recursos do navegador
 
 - Local Storage
 - Notifications API
+- Push API
 - Service Worker
 - Web App Manifest
 
@@ -129,7 +131,9 @@ Abra o projeto em um navegador compatível e escolha **Instalar aplicativo** ou 
 
 No iPhone, abra pelo Safari e selecione **Compartilhar → Adicionar à Tela de Início**.
 
-As notificações funcionam enquanto o aplicativo está aberto ou ativo em segundo plano. Elas oferecem as ações **Já bebi 200 ml** e **Adiar 10 min**, conforme o suporte do navegador e do sistema operacional.
+Depois de ativadas, as notificações são enviadas pelo servidor e recebidas pelo Service Worker mesmo com o aplicativo fechado. Elas oferecem ações para registrar a quantidade sugerida ou **Adiar 10 min**, conforme o suporte do navegador e do sistema operacional.
+
+No iPhone ou iPad, o aplicativo precisa estar adicionado à Tela de Início antes de solicitar a permissão. Em todos os dispositivos, a versão publicada precisa usar HTTPS.
 
 ## Publicação no Render
 
@@ -139,13 +143,26 @@ Para este projeto, a configuração mais simples é publicar front-end e back-en
 - Start command: `npm run iniciar`
 - Health check: `/status`
 
-Não são necessárias chaves, banco de dados, disco persistente ou variáveis adicionais. O Render fornece automaticamente a variável `PORT` usada pelo servidor.
+O servidor gera automaticamente as chaves VAPID e os arquivos de dados no primeiro início. Em produção, esses arquivos precisam estar em armazenamento persistente; caso contrário, inscrições e dados serão perdidos quando o serviço reiniciar ou for republicado.
+
+Variáveis opcionais:
+
+- `ARQUIVO_CONFIG_PUSH`: caminho persistente para as chaves VAPID.
+- `ARQUIVO_DADOS_APP`: caminho persistente para perfil, histórico e inscrições.
+- `CONTATO_VAPID`: contato no formato `mailto:email@dominio.com`.
+
+Exemplo com um disco montado em `/var/data`:
+
+```text
+ARQUIVO_CONFIG_PUSH=/var/data/push-config.json
+ARQUIVO_DADOS_APP=/var/data/app-data.json
+```
 
 ## Privacidade
 
-O perfil, as configurações e os registros de consumo ficam somente no `localStorage` do navegador utilizado.
+O aplicativo não possui contas. Perfil, configurações, histórico e inscrições de push são armazenados pelo servidor da instalação e sincronizados entre os dispositivos. Uma cópia também permanece no `localStorage` para uso offline.
 
-O aplicativo não possui conta, banco de dados ou envio de informações pessoais para serviços externos.
+Como existe apenas um perfil e não há autenticação, mantenha o endereço da implantação privado. Qualquer pessoa com acesso ao endereço poderá visualizar ou alterar os mesmos dados.
 
 ## Aviso
 

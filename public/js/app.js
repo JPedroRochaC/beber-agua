@@ -15,6 +15,10 @@ let relogioLembrete;
 let temporizadorMensagem;
 let eventoInstalacaoPendente;
 let recarregandoAplicativo = false;
+let temporizadorSincronizacao;
+let sincronizacaoEmAndamento = false;
+let sincronizacaoPendente = false;
+let servidorSincronizado = false;
 
 const elementos = Object.fromEntries(
   [...document.querySelectorAll("[id]")].map((elemento) => [
@@ -51,6 +55,65 @@ function carregarDados() {
 
 function salvarDados() {
   localStorage.setItem(chaveDados, JSON.stringify(dados));
+  clearTimeout(temporizadorSincronizacao);
+  temporizadorSincronizacao = setTimeout(sincronizarDadosComServidor, 350);
+}
+
+async function sincronizarDadosComServidor() {
+  if (!navigator.onLine) return;
+  if (sincronizacaoEmAndamento) {
+    sincronizacaoPendente = true;
+    return;
+  }
+  sincronizacaoEmAndamento = true;
+  try {
+    const dadosCompartilhados = structuredClone(dados);
+    delete dadosCompartilhados.configuracoes.notificacoesAtivas;
+    const resposta = await fetch("/api/data", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dados: dadosCompartilhados }),
+    });
+    if (!resposta.ok) throw new Error("Falha ao sincronizar dados.");
+    servidorSincronizado = true;
+  } catch {
+    servidorSincronizado = false;
+  } finally {
+    sincronizacaoEmAndamento = false;
+    if (sincronizacaoPendente) {
+      sincronizacaoPendente = false;
+      sincronizarDadosComServidor();
+    }
+  }
+}
+
+async function carregarDadosDoServidor(atualizarInterface = false) {
+  if (!navigator.onLine) return;
+  try {
+    const resposta = await fetch("/api/data", { cache: "no-store" });
+    if (!resposta.ok) throw new Error("Servidor indisponível.");
+    const conteudo = await resposta.json();
+    servidorSincronizado = true;
+    if (conteudo.dados) {
+      const notificacoesAtivasNesteDispositivo =
+        dados.configuracoes.notificacoesAtivas;
+      dados = {
+        ...dadosPadrao,
+        ...conteudo.dados,
+        configuracoes: {
+          ...dadosPadrao.configuracoes,
+          ...conteudo.dados.configuracoes,
+          notificacoesAtivas: notificacoesAtivasNesteDispositivo,
+        },
+      };
+      localStorage.setItem(chaveDados, JSON.stringify(dados));
+      if (atualizarInterface) exibirAplicativo();
+    } else if (dados.perfil) {
+      await sincronizarDadosComServidor();
+    }
+  } catch {
+    servidorSincronizado = false;
+  }
 }
 function obterDataLocal(data = new Date()) {
   return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
@@ -145,6 +208,8 @@ function iniciarPerfil(evento) {
     horaDormir: formulario.get("horaDormir"),
     volumePadrao: Number(formulario.get("volumePadrao")),
     metaDiaria: calcularMeta(formulario.get("peso")),
+    fusoHorario:
+      Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Sao_Paulo",
   };
   dados.proximoLembrete = criarProximoLembrete().toISOString();
   salvarDados();
@@ -184,7 +249,8 @@ function adiarLembrete(minutos = dados.configuracoes.adiamento) {
 
 function executarAcaoNotificacao(acao) {
   if (!dados.perfil) return;
-  if (acao === "beber-200") registrarConsumo(200);
+  const consumo = /^beber-(\d+)$/.exec(acao || "");
+  if (consumo) registrarConsumo(Number(consumo[1]));
   if (acao === "adiar-10") adiarLembrete(10);
 }
 
@@ -371,6 +437,7 @@ function atualizarProximoLembrete() {
 }
 
 function verificarLembrete() {
+  if (servidorSincronizado && navigator.onLine) return;
   if (
     !dados.perfil ||
     !dados.configuracoes.notificacoesAtivas ||
@@ -426,6 +493,7 @@ async function ativarNotificacoes() {
     Notification.permission === "granted" &&
     dados.configuracoes.notificacoesAtivas
   ) {
+    await removerInscricaoPush();
     dados.configuracoes.notificacoesAtivas = false;
     elementos["lembrete-pendente"].classList.add("oculto");
     definirPulsoSino(false);
@@ -442,7 +510,13 @@ async function ativarNotificacoes() {
       : await Notification.requestPermission();
   dados.configuracoes.notificacoesAtivas = permissao === "granted";
   if (dados.configuracoes.notificacoesAtivas) {
-    dados.proximoLembrete = criarProximoLembrete().toISOString();
+    try {
+      await inscreverDispositivoPush();
+      dados.proximoLembrete = criarProximoLembrete().toISOString();
+    } catch {
+      dados.configuracoes.notificacoesAtivas = false;
+      mostrarMensagem("Não foi possível registrar este dispositivo para Web Push.");
+    }
   }
   salvarDados();
   atualizarEstadoNotificacoes();
@@ -455,6 +529,51 @@ async function ativarNotificacoes() {
       ? "Lembretes ativados."
       : "Permissão de notificação não concedida.",
   );
+}
+
+function converterChavePublica(chave) {
+  const preenchimento = "=".repeat((4 - (chave.length % 4)) % 4);
+  const base64 = (chave + preenchimento)
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  const dadosBrutos = atob(base64);
+  return Uint8Array.from([...dadosBrutos].map((caractere) => caractere.charCodeAt(0)));
+}
+
+async function inscreverDispositivoPush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    throw new Error("Web Push indisponível.");
+  }
+  const registro = await navigator.serviceWorker.ready;
+  let inscricao = await registro.pushManager.getSubscription();
+  if (!inscricao) {
+    const respostaChave = await fetch("/api/push/public-key", { cache: "no-store" });
+    if (!respostaChave.ok) throw new Error("Chave pública indisponível.");
+    const { chavePublica } = await respostaChave.json();
+    inscricao = await registro.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: converterChavePublica(chavePublica),
+    });
+  }
+  const resposta = await fetch("/api/push/subscriptions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(inscricao),
+  });
+  if (!resposta.ok) throw new Error("Inscrição não salva.");
+}
+
+async function removerInscricaoPush() {
+  if (!("serviceWorker" in navigator)) return;
+  const registro = await navigator.serviceWorker.ready;
+  const inscricao = await registro.pushManager.getSubscription();
+  if (!inscricao) return;
+  await fetch("/api/push/subscriptions", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ endpoint: inscricao.endpoint }),
+  }).catch(() => {});
+  await inscricao.unsubscribe();
 }
 
 function alternarPausa() {
@@ -492,6 +611,10 @@ function salvarConfiguracoes(evento) {
     horaDormir: formulario.get("horaDormir"),
     volumePadrao: Number(formulario.get("volumePadrao")),
     metaDiaria: Number(formulario.get("metaDiaria")),
+    fusoHorario:
+      dados.perfil.fusoHorario ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone ||
+      "America/Sao_Paulo",
   };
   dados.configuracoes.adiamento = Number(formulario.get("adiamento"));
   dados.configuracoes.intervaloPadrao = Number(
@@ -557,9 +680,14 @@ elementos["formulario-configuracoes"].addEventListener(
   salvarConfiguracoes,
 );
 
-exibirAplicativo();
-processarAcaoPendenteNaUrl();
-window.lucide?.createIcons({ attrs: { "stroke-width": 1.8 } });
+async function inicializarAplicativo() {
+  await carregarDadosDoServidor();
+  exibirAplicativo();
+  processarAcaoPendenteNaUrl();
+  window.lucide?.createIcons({ attrs: { "stroke-width": 1.8 } });
+}
+
+inicializarAplicativo();
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("message", (evento) => {
@@ -577,12 +705,14 @@ window.addEventListener("appinstalled", () => {
   elementos["botao-instalar"]?.classList.add("oculto");
   mostrarMensagem("Aplicativo instalado com sucesso.");
 });
-window.addEventListener("focus", () => {
+window.addEventListener("focus", async () => {
+  await carregarDadosDoServidor(true);
   sincronizarPermissaoNotificacoes();
   verificarLembrete();
 });
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible") {
+    await carregarDadosDoServidor(true);
     sincronizarPermissaoNotificacoes();
     verificarLembrete();
   }
@@ -603,7 +733,7 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
       const registro =
-        await navigator.serviceWorker.register("service-worker.js");
+        await navigator.serviceWorker.register("/service-worker.js");
       await registro.update();
     } catch {
       mostrarMensagem("Não foi possível ativar o modo de aplicativo.");
